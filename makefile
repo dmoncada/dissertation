@@ -43,7 +43,7 @@ $(REFS): $(REFSRCS)
 clean:
 	@echo 'make: cleaning...'
 	@$(RM) -f *.acn *.acr *.alg *.aux *.bib *.bbl *.bcf *.blg *.glg *.glo
-	@$(RM) -f *.gls *.glsdefs *ist *.lof *.log *.lot *.out *.pdf *.xml *.toc
+	@$(RM) -f *.gls *.glsdefs *.ist *.lof *.log *.lot *.out *.pdf *.xml *.toc
 
 help:
 	@echo 'Targets:'

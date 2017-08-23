@@ -1,0 +1,33 @@
+# Ignore everything produced by pdflatex.
+*.acn
+*.acr
+*.alg
+*.aux
+*.bib
+*.bbl
+*.bcf
+*.blg
+*.glg
+*.glo
+*.gls
+*.glsdefs
+*.ist
+*.lof
+*.log
+*.lot
+*.out
+*.pdf
+*.xml
+*.toc
+
+# Ignore images.
+*.jpeg
+*.jpg
+*.png
+
+# Ignore raw references files.
+*.csv
+
+# Misc.
+*.swp
+
