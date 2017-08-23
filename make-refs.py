@@ -1,39 +1,46 @@
 #!/usr/bin/env python
 
-# Takes as input a .csv file with refs. and turns it into a biblatex-compatible
-# .bib file for including in a LaTeX doc.
+"""
+Takes as input a dir. where (possibly many) .csv files with refs. are stored,
+and merges them into a biblatex-compatible .bib file for including in a LaTeX
+doc.
+
+The .csv files should be named according to the refs. they contain, e.g. a .csv
+containing articles refs. should be 'articles.csv', etc. Currently supported
+file names include: 'articles.csv' and 'books.csv'. More to come.
+"""
 
 import sys                    # For handling arguments from the CLI.
-import csv                    # For working with csv files.
-from os import listdir        # For getting all files in a dir.
+import csv                    # For handling csv files.
+from os import listdir        # For listing all files in a dir.
 from os.path import exists    # For checking if files/dirs. exist.
 from os.path import basename  # For stripping the path from a file.
 from os.path import splitext  # For stripping the extension from a file.
 
 article=\
-'@article{{{nick},\n\
-  author       = {{{auth}}},\n\
-  title        = {{{titl}}},\n\
-  journaltitle = {{{jrnl}}},\n\
-  year         = {{{year}}},\n\
-  volume       = {{{vol}}},\n\
-  number       = {{{num}}},\n\
-  pages        = {{{pgs}}},\n\
-  doi          = {{{doi}}}\n\
+'@article{{{},\n\
+  author       = {{{}}},\n\
+  title        = {{{}}},\n\
+  journaltitle = {{{}}},\n\
+  year         = {{{}}},\n\
+  volume       = {{{}}},\n\
+  number       = {{{}}},\n\
+  pages        = {{{}}},\n\
+  doi          = {{{}}}\n\
 }}\n'
 
 book=\
-'@book{{{nick},\n\
-  author    = {{{auth}}},\n\
-  title     = {{{titl}}},\n\
-  address   = {{{addr}}},\n\
-  publisher = {{{publ}}},\n\
-  year      = {{{year}}}\n\
+'@book{{{},\n\
+  author    = {{{}}},\n\
+  title     = {{{}}},\n\
+  address   = {{{}}},\n\
+  publisher = {{{}}},\n\
+  year      = {{{}}}\n\
 }}\n'
 
 # Cleans up strings according to the .bib format.
-def clean(s):
-    return s.replace('"', '').replace('&', '\&')
+def clean(ls):
+    return [s.replace('"', '').replace('&', '\&') for s in ls]
 
 # Makes the refs. in .bib format from the raw refs. file.
 def main(dirname):
@@ -41,49 +48,29 @@ def main(dirname):
         sys.stderr.write('error: no raw refs directory\n')
         return 1
 
-    files    = listdir(dirname)
-    csvfiles = [f for f in files if f.endswith('.csv')]
-    refsfile = open('refs.bib', 'w') # Name the file 'refs.bib'.
+    csvfiles = [f for f in listdir(dirname) if f.endswith('.csv')]
 
-    for fname in csvfiles:
-        csvfile = open(dirname + '/' + fname, 'r')
-        reader  = csv.reader(csvfile, delimiter=',', quotechar='"')
-        header  = next(reader) # The first line is the header.
+    with open('refs.bib', 'w') as refsfile:
+        for fname in csvfiles:
+            with open(dirname + '/' + fname, 'r') as csvfile:
+                reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+                header = next(reader) # Get rid of the header.
 
-        for row in reader:
-            # Articles:
-            #   row = [nick, author, title, journal, year, vol, num, pags, doi]
-            # Books:
-            #   row = [nick, author, title, address, publisher, year]
+                for row in reader:
+                    stem = splitext(fname)[0] # The file name without extension.
 
-            if splitext(fname)[0] == 'articles':
-                refsfile.write(article.format(
-                    nick = clean(row[0]),
-                    auth = clean(row[1]),
-                    titl = clean(row[2]),
-                    jrnl = clean(row[3]),
-                    year = clean(row[4]),
-                    vol  = clean(row[5]),
-                    num  = clean(row[6]),
-                    pgs  = clean(row[7]),
-                    doi  = clean(row[8])))
+                    # Articles:
+                    #  row = [label, author, title, journal, year, vol, num, pags, doi]
+                    # Books:
+                    #  row = [label, author, title, address, publisher, year]
 
-            elif splitext(fname)[0] == 'books':
-                refsfile.write(book.format(
-                    nick = clean(row[0]),
-                    auth = clean(row[1]),
-                    titl = clean(row[2]),
-                    addr = clean(row[3]),
-                    publ = clean(row[4]),
-                    year = clean(row[5])))
-
-            else:
-                sys.stderr.write('error: %s unknown refs file\n' % fname)
-                return 1
-
-        csvfile.close()
-
-    refsfile.close()
+                    if stem == 'articles':
+                        refsfile.write(article.format(*clean(row)))
+                    elif stem == 'books':
+                        refsfile.write(book.format(*clean(row)))
+                    else:
+                        sys.stderr.write('error: %s unknown refs file\n' % fname)
+                        return 1
 
     return 0
 

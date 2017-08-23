@@ -47,15 +47,16 @@ clean:
 
 help:
 	@echo 'Targets:'
-	@echo ' all      - Build all targets marked with [*].'
-	@echo ' *diss    - Build the dissertation in .pdf format.'
-	@echo ' *refs    - Build the references file in .bib format.'
-	@echo ' *clean   - Remove all generated files.'
-	@echo ' help     - Show this help message.'
-	@echo ' print-%  - Print the value of variable %.'
 	@echo ''
-	@echo 'Run "make diss" to build the dissertation if any .tex file in the tree has'
-	@echo 'been updated, or "make" or "make all" to build no matter what.'
+	@echo ' all      - Builds all targets marked with [*].'
+	@echo ' *diss    - Builds the dissertation in .pdf format.'
+	@echo ' *refs    - Builds the references file in .bib format.'
+	@echo ' *clean   - Removes all generated files.'
+	@echo ' help     - Shows this help message.'
+	@echo ' print-%  - Prints the value of variable %.'
+	@echo ''
+	@echo 'Run "make diss" to build the dissertation if any .tex file in the tree has been'
+	@echo 'updated, or "make" or "make all" to build no matter what.'
 
 # For printing the value of a make variable.
 print-%:

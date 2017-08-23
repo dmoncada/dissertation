@@ -29,5 +29,6 @@
 *.csv
 
 # Misc.
+*.pages
 *.swp
 
