@@ -2,75 +2,114 @@
 
 """
 Takes as input a dir. where (possibly many) .csv files with refs. are stored,
-and merges them into a biblatex-compatible .bib file for including in a LaTeX
-doc.
-
-The .csv files should be named according to the refs. they contain, e.g. a .csv
-containing articles refs. should be 'articles.csv', etc. Currently supported
-file names include: 'articles.csv' and 'books.csv'. More to come.
+and builds from them both acro- and biblatex-compatible files which can then be
+used in a LaTeX doc.
 """
 
 import sys                    # For handling arguments from the CLI.
 import csv                    # For handling csv files.
 from os import listdir        # For listing all files in a dir.
-from os.path import exists    # For checking if files/dirs. exist.
+from os.path import isdir     # For checking if dirs. exist.
+from os.path import exists    # For checking if files exist.
 from os.path import basename  # For stripping the path from a file.
 from os.path import splitext  # For stripping the extension from a file.
 
-article=\
-'@article{{{},\n\
-  author       = {{{}}},\n\
-  title        = {{{}}},\n\
-  journaltitle = {{{}}},\n\
-  year         = {{{}}},\n\
-  volume       = {{{}}},\n\
-  number       = {{{}}},\n\
-  pages        = {{{}}},\n\
-  doi          = {{{}}}\n\
-}}\n'
+abbrv_style = """\
+% Define a new list style...
+\\newlist{acronyms}{description}{1}
+\\setlist[acronyms]{format=\\textnormal,labelindent=7.5mm,labelwidth=25mm,noitemsep}
 
-book=\
-'@book{{{},\n\
-  author    = {{{}}},\n\
-  title     = {{{}}},\n\
-  address   = {{{}}},\n\
-  publisher = {{{}}},\n\
-  year      = {{{}}}\n\
-}}\n'
+% ...and attach it to 'acrostyle'.
+\\DeclareAcroListStyle{acrostyle}{list}{list=acronyms}
+
+% Set the style for the list and the format for the acronyms' first expansion.
+\\acsetup{list-style=acrostyle,first-long-format=\\em\\lowercase}
+
+% Acronyms
+"""
+
+acronym = '\\DeclareAcronym{{{}}}{{short={},long={}}}'
+
+article = """\
+@article{{{},
+  author       = {{{}}},
+  title        = {{{}}},
+  journaltitle = {{{}}},
+  year         = {{{}}},
+  volume       = {{{}}},
+  number       = {{{}}},
+  pages        = {{{}}},
+  doi          = {{{}}}
+}}
+"""
+
+book = """\
+@book{{{},
+  author    = {{{}}},
+  title     = {{{}}},
+  address   = {{{}}},
+  publisher = {{{}}},
+  year      = {{{}}}
+}}
+"""
 
 # Cleans up strings according to the .bib format.
 def clean(ls):
     return [s.replace('"', '').replace('&', '\&') for s in ls]
 
-# Makes the refs. in .bib format from the raw refs. file.
-def main(dirname):
-    if not exists(dirname):
-        sys.stderr.write('error: no raw refs directory\n')
+def make_abbrvs(dirname):
+    fname = dirname + '/abbrvs.csv'
+
+    if not exists(fname):
+        sys.stderr.write('error: no raw file for abbreviations\n')
         return 1
 
-    csvfiles = [f for f in listdir(dirname) if f.endswith('.csv')]
+    fin    = open(fname, 'r')
+    fout   = open(basename(fname).replace('.csv', '.tex'), 'w')
+    reader = csv.reader(fin)
+    header = next(reader) # Get rid of the header.
 
-    with open('refs.bib', 'w') as refsfile:
-        for fname in csvfiles:
-            with open(dirname + '/' + fname, 'r') as csvfile:
-                reader = csv.reader(csvfile, delimiter=',', quotechar='"')
-                header = next(reader) # Get rid of the header.
+    # row = [label, short, long]
 
-                for row in reader:
-                    stem = splitext(fname)[0] # The file name without extension.
+    fout.write(abbrv_style +
+               '\n'.join([acronym.format(*row) for row in reader]))
 
-                    # Articles:
-                    #  row = [label, author, title, journal, year, vol, num, pags, doi]
-                    # Books:
-                    #  row = [label, author, title, address, publisher, year]
+    fin.close()
+    fout.close()
 
-                    if stem == 'articles':
-                        refsfile.write(article.format(*clean(row)))
-                    elif stem == 'books':
-                        refsfile.write(book.format(*clean(row)))
-                    else:
-                        sys.stderr.write('error: %s unknown refs file\n' % fname)
-                        return 1
+    return 0
+
+# Makes the refs. in .bib format from the raw refs. file.
+def make_biblio(dirname):
+    files = [f for f in listdir(dirname) if f.endswith('.csv') and
+             ('articles' in f or 'books' in f)] # Keep it simple.
+
+    if not files:
+        sys.stderr.write('error: no raw files for bibliography\n')
+        return 1
+
+    fout = open('biblio.bib', 'w')
+
+    for fname in files:
+        fin    = open(dirname + '/' + fname, 'r')
+        reader = csv.reader(fin, delimiter=',', quotechar='"')
+        header = next(reader)
+
+        for row in reader:
+            stem = splitext(fname)[0] # The file name without extension.
+
+            # Articles:
+            #  row = [label, author, title, journal, year, vol, num, pags, doi]
+            # Books:
+            #  row = [label, author, title, address, publisher, year]
+
+            if stem == 'articles':
+                fout.write(article.format(*clean(row)))
+            elif stem == 'books':
+                fout.write(book.format(*clean(row)))
+
+        fin.close()
+    fout.close()
 
     return 0
 
@@ -79,5 +118,11 @@ if __name__ == '__main__':
         sys.stderr.write('usage: $ python %s <dirname>\n' % sys.argv[0])
         raise SystemExit(1)
 
-    sys.exit(main(sys.argv[1])); # Get the dir. name from the CLI.
+    dirname = sys.argv[1]
+
+    if not isdir(dirname):
+        sys.stderr.write('error: no raw refs directory\n')
+        raise SystemExit(1)
+
+    sys.exit(make_abbrvs(dirname) or make_biblio(dirname))
 

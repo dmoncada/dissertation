@@ -1,20 +1,10 @@
 # Ignore everything produced by pdflatex.
-*.acn
-*.acr
-*.alg
 *.aux
-*.bib
 *.bbl
 *.bcf
+*.bib
 *.blg
-*.glg
-*.glo
-*.gls
-*.glsdefs
-*.ist
-*.lof
 *.log
-*.lot
 *.out
 *.pdf
 *.xml
@@ -29,6 +19,7 @@
 *.csv
 
 # Misc.
+.notags
 *.pages
 *.swp
 
