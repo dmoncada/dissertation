@@ -1,0 +1,112 @@
+\documentclass[12pt]{report}
+
+\usepackage[a4paper,includehead=true,top=30mm,headsep=10mm,bottom=40mm,textwidth=150mm]{geometry}
+\usepackage{fancyhdr}
+\usepackage[onehalfspacing]{setspace}
+\usepackage{acro}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage[draft]{graphicx} % Remove the 'draft' option for showing images.
+\usepackage[font={small,stretch=0.8},labelfont=bf,labelsep=space]{caption}
+\usepackage[backend=biber,sorting=nyt,sortcites=true]{biblatex}
+\usepackage{amsmath}
+
+% \usepackage{showframe} % Uncomment for showing a frame around each page.
+\usepackage{lipsum} % Bogus content.
+
+% ------------------------------------------------------------------------------
+
+% Header customization. For a comprehensive description of the following code,
+% check: 'Page layout in LaTeX', by Piet van Oostrum.
+\pagestyle{fancy}
+
+% The \chapter command automatically switches to the plain page style, ignoring
+% the page style currently in effect. To customize such pages, you must redefine
+% the plain pagestyle.
+\fancypagestyle{plain}{%
+  \fancyhf{}                         % Get rid of headers and footers...
+  \fancyfoot[C]{\textbf{\thepage}}   % ...except the center.
+  \renewcommand{\footrulewidth}{0pt} % Also get rid of lines.
+  \renewcommand{\headrulewidth}{0pt}}
+
+% Redefine \sectionmark.
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+
+% Non-chapter pages are customized by using commands that target specific parts
+% of the header/footer. For example, \fancyhead[L] modifies the left portion of
+% the header.
+\fancyhf{}
+\fancyhead[L]{\small\textbf{\leftmark}} % \leftmark contains the chapter name.
+\fancyhead[R]{\small\textbf{\thepage}}
+\renewcommand{\headrulewidth}{1pt}
+
+% ------------------------------------------------------------------------------
+
+% Add external resources (images, references, etc.) here.
+
+\def\chapterautorefname{Ch.} % Display referenced chapters as 'Ch. XX'.
+
+% ------------------------------------------------------------------------------
+
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{1in}
+  \begin{Large}\bfseries
+    Title of the thesis goes here\par
+  \end{Large}
+  \vspace{1in}
+  \begin{large}
+    Name goes here\par
+  \end{large}
+  \vfill
+  A Thesis submitted for the degree of...\par
+  \vspace{0.5in}
+  Name of the school goes here\par
+  \vspace{0.5in}
+  Date goes here\par
+\end{titlepage}
+
+% ------------------------------------------------------------------------------
+
+% Front matter
+\cleardoublepage%
+\pagenumbering{roman}
+
+\chapter*{Abstract\markboth{Abstract}{}}
+\lipsum[1-5]
+
+\chapter*{Acknowledgments\markboth{Acknowledgments}{}}
+\lipsum[6-10]
+
+\tableofcontents
+
+% Add a list of abbreviations here.
+
+% ------------------------------------------------------------------------------
+
+% Main matter
+\cleardoublepage%
+\pagenumbering{arabic}
+
+% Display the section name in the header from now on.
+\fancyhead[L]{\small\textbf{\rightmark}}
+
+\chapter{Introduction}
+\lipsum[11-12]
+
+\section{A section}
+\lipsum[13-16]
+
+\section{Another section}
+\lipsum[17-20]
+
+\chapter{Background}
+\section{Yet another section}
+\lipsum[21-25]
+
+% Print the bibliography (if any) here.
+
+\end{document}
+
