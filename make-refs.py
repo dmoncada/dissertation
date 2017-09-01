@@ -1,128 +1,76 @@
 #!/usr/bin/env python
 
-"""
-Takes as input a dir. where (possibly many) .csv files with refs. are stored,
-and builds from them both acro- and biblatex-compatible files which can then be
-used in a LaTeX doc.
-"""
+"""Takes as input a .csv file where refs. are stored, and builds from it a
+biblatex-compatible file which can then be used in a LaTeX doc."""
 
-import sys                    # For handling arguments from the CLI.
-import csv                    # For handling csv files.
-from os import listdir        # For listing all files in a dir.
-from os.path import isdir     # For checking if dirs. exist.
-from os.path import exists    # For checking if files exist.
-from os.path import basename  # For stripping the path from a file.
-from os.path import splitext  # For stripping the extension from a file.
+import sys                  # For handling arguments from the CLI.
+import csv                  # For handling csv files.
+import re                   # For using regex.
+from os.path import exists  # For checking if files exist.
+from os import remove as rm # For removing files if an error occurred.
 
-abbrv_style = """\
-% Define a new list style...
-\\newlist{acronyms}{description}{1}
-\\setlist[acronyms]{format=\\textnormal,labelindent=7.5mm,labelwidth=25mm,noitemsep}
+entry_types = {
+    'article'      : ['author', 'title', 'journaltitle', 'year', 'volume', 'number', 'pages', 'doi'],
+    'book'         : ['author', 'title', 'year', 'edition', 'publisher', 'location', 'isbn'],
+    'conference'   : ['author', 'title', 'booktitle', 'year', 'month', 'location'],
+    'electronic'   : ['author', 'title', 'year', 'url'],
+    'masterthesis' : ['author', 'title', 'institution', 'year'],
+    'phdthesis'    : ['author', 'title', 'institution', 'year']
+}
 
-% ...and attach it to 'acrostyle'.
-\\DeclareAcroListStyle{acrostyle}{list}{list=acronyms}
+longest = 'journaltitle'
 
-% Set the style for the list and the format for the acronyms' first expansion.
-\\acsetup{list-style=acrostyle,first-long-format=\\em\\lowercase}
+def make_templs(types): # types is a dict. of lists.
+    templs = {}
 
-% Acronyms
-"""
+    for _type, fields in types.iteritems():
+        indented = [field.ljust(len(longest)) for field in fields]
 
-acronym = '\\DeclareAcronym{{{}}}{{short={},long={}}}'
+        templs[_type] = '@{}{{{},\n  ' + \
+                        ' = {{{}}},\n  '.join(indented) + \
+                        ' = {{{}}}\n}}\n'
 
-article = """\
-@article{{{},
-  author       = {{{}}},
-  title        = {{{}}},
-  journaltitle = {{{}}},
-  year         = {{{}}},
-  volume       = {{{}}},
-  number       = {{{}}},
-  pages        = {{{}}},
-  doi          = {{{}}}
-}}
-"""
+    return templs
 
-book = """\
-@book{{{},
-  author    = {{{}}},
-  title     = {{{}}},
-  address   = {{{}}},
-  publisher = {{{}}},
-  year      = {{{}}}
-}}
-"""
+# Removes chars. that might bother biber.
+def clean(fields):
+    return [field.replace('"', '').replace('&', '\&') for field in fields]
 
-# Cleans up strings according to the .bib format.
-def clean(ls):
-    return [s.replace('"', '').replace('&', '\&') for s in ls]
+def main(fname):
+    try:
+        with open(fname, 'r') as fin, \
+             open(fname.replace('.csv', '.bib'), 'w') as fout:
 
-def make_abbrvs(dirname):
-    fname = dirname + '/abbrvs.csv'
+            reader = csv.reader(fin, delimiter=',', quotechar='"')
+            templs = make_templs(entry_types)
 
-    if not exists(fname):
-        sys.stderr.write('error: no raw file for abbreviations\n')
+            for row in reader:
+                if row[0] in entry_types.keys():
+                    templ = templs[row[0]]
+                    fmttd = templ.format(*clean(row))
+                    fmttd = re.sub(',\n  .{,%i} = {}' % len(longest), '', fmttd)
+                    fout.write(fmttd)
+                else:
+                    raise ValueError('unknown entry type \'%s\'' % row[0])
+
+    # IndexError is thrown when there are more fields than expected.
+    except (IndexError, ValueError) as err:
+        sys.stderr.write('error: ' + err.message + '\n')
+        rm(fout.name)
         return 1
-
-    fin    = open(fname, 'r')
-    fout   = open(basename(fname).replace('.csv', '.tex'), 'w')
-    reader = csv.reader(fin)
-    header = next(reader) # Get rid of the header.
-
-    # row = [label, short, long]
-
-    fout.write(abbrv_style +
-               '\n'.join([acronym.format(*row) for row in reader]))
-
-    fin.close()
-    fout.close()
-
-    return 0
-
-# Makes the refs. in .bib format from the raw refs. file.
-def make_biblio(dirname):
-    files = [f for f in listdir(dirname) if f.endswith('.csv') and
-             ('articles' in f or 'books' in f)] # Keep it simple.
-
-    if not files:
-        sys.stderr.write('error: no raw files for bibliography\n')
-        return 1
-
-    fout = open('biblio.bib', 'w')
-
-    for fname in files:
-        fin    = open(dirname + '/' + fname, 'r')
-        reader = csv.reader(fin, delimiter=',', quotechar='"')
-        header = next(reader)
-
-        for row in reader:
-            stem = splitext(fname)[0] # The file name without extension.
-
-            # Articles:
-            #  row = [label, author, title, journal, year, vol, num, pags, doi]
-            # Books:
-            #  row = [label, author, title, address, publisher, year]
-
-            if stem == 'articles':
-                fout.write(article.format(*clean(row)))
-            elif stem == 'books':
-                fout.write(book.format(*clean(row)))
-
-        fin.close()
-    fout.close()
 
     return 0
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
-        sys.stderr.write('usage: $ python %s <dirname>\n' % sys.argv[0])
+        sys.stderr.write('usage: $ python %s <fname>\n' % sys.argv[0])
         raise SystemExit(1)
 
-    dirname = sys.argv[1]
+    fname = sys.argv[1]
 
-    if not isdir(dirname):
-        sys.stderr.write('error: no raw refs directory\n')
+    if not exists(fname):
+        sys.stderr.write('error: no raw refs file\n')
         raise SystemExit(1)
 
-    sys.exit(make_abbrvs(dirname) or make_biblio(dirname))
+    sys.exit(main(fname))
 

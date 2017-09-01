@@ -1,15 +1,11 @@
 TEX       := pdflatex
 BIB       := biber
 
-TEXFLAGS  := -halt-on-error -file-line-error
-
-TEXDIR    := chapters
-REFDIR    := refs
-
 DISS      := main.pdf
-REFS      := abbrvs.tex biblio.bib
+REFS      := refs.bib
+TEXDIR    := chapters
 TEXSRCS   := $(wildcard *.tex $(TEXDIR)/*.tex)
-REFSRCS   := $(wildcard $(REFDIR)/*.csv)
+TEXFLAGS  := -halt-on-error -file-line-error
 
 RM        ?= rm
 GREP      ?= grep
@@ -40,14 +36,14 @@ $(DISS): $(TEXSRCS)
 	@$(GREP) $(GREPFLAGS) $(subst .pdf,.log,$@)
 	@$(OPEN) -a $(VIEWER) $@
 
-$(REFS): $(REFSRCS)
+%.bib: %.csv
 	@echo 'make: building refs...'
-	@$(PYTHON) make-refs.py $(REFDIR)
+	@$(PYTHON) make-refs.py $<
 
 clean:
 	@echo 'make: cleaning...'
-	@$(RM) -f $(DISS) $(REFS) *.acn *.acr *.alg *.aux *.bbl *.bcf *.blg
-	@$(RM) -f *.log *.out *.pdf *.xml *.toc *.xdy
+	@$(RM) -f $(DISS) $(REFS) *.aux *.bbl *.bcf *.blg *.log *.out *.pdf
+	@$(RM) -f *.xml *.toc
 
 help:
 	@echo 'Targets:'
