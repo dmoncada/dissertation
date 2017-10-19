@@ -1,0 +1,12 @@
+% Define a new list style...
+\newlist{acronyms}{description}{1}
+\setlist[acronyms]{format=\textnormal,labelindent=7.5mm,labelwidth=25mm,noitemsep}
+
+% ...and attach it to 'acrostyle'.
+\DeclareAcroListStyle{acrostyle}{list}{list=acronyms}
+
+% Set the style for the list and the format for the acronyms' first expansion.
+\acsetup{list-style=acrostyle,first-long-format=\em\lowercase}
+
+% Acronyms.
+\DeclareAcronym{aslw}{short=ASLW,long=A Super Long Word}

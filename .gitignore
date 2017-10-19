@@ -10,16 +10,9 @@
 *.xml
 *.toc
 
-# Ignore images.
-*.jpeg
-*.jpg
-*.png
-
-# Ignore raw references files.
-*.csv
-
-# Misc.
+# Ignored file types.
 .notags
-*.pages
 *.swp
 
+# Ignored dirs.
+backup/

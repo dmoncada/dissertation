@@ -10,7 +10,7 @@ TEXFLAGS  := -halt-on-error -file-line-error
 RM        ?= rm
 GREP      ?= grep
 OPEN      ?= open
-PYTHON    ?= python
+PYTHON    ?= python3
 VIEWER    := /Applications/Skim.app
 
 GREPFLAGS := --color=auto -Hn Warning
@@ -50,7 +50,7 @@ help:
 	@echo ''
 	@echo ' all      - Builds all targets marked with [*].'
 	@echo ' *diss    - Builds the dissertation in .pdf format.'
-	@echo ' *refs    - Builds the abbreviations and bibliography.'
+	@echo ' *refs    - Builds the bibliography.'
 	@echo ' *clean   - Removes all generated files.'
 	@echo ' help     - Shows this help message.'
 	@echo ' print-%  - Prints the value of variable %.'
@@ -58,7 +58,5 @@ help:
 	@echo 'Run "make diss" to build the dissertation if any .tex file in the tree has been'
 	@echo 'updated, or "make" or "make all" to build no matter what.'
 
-# For printing the value of a make variable.
 print-%:
 	@echo '$*=$($*)'
-
