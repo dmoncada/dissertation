@@ -30,7 +30,7 @@ $(DISS): $(TEXSRCS)
 	@$(TEX) $(TEXFLAGS) $(subst .pdf,,$@)
 	@$(BIB) $(subst .pdf,,$@)
 	@$(TEX) $(TEXFLAGS) $(subst .pdf,,$@)
-	@$(TEX) $(TEXFLAGS) $(subst .pdf,,$@)   
+	@$(TEX) $(TEXFLAGS) $(subst .pdf,,$@)
 	@echo ''
 	@echo 'make: showing warnings...'
 	@$(GREP) $(GREPFLAGS) $(subst .pdf,.log,$@)
@@ -42,8 +42,9 @@ $(DISS): $(TEXSRCS)
 
 clean:
 	@echo 'make: cleaning...'
-	@$(RM) -f $(DISS) $(REFS) *.aux *.bbl *.bcf *.blg *.log *.out *.pdf
-	@$(RM) -f *.xml *.toc
+
+	@$(RM) -f $(DISS) $(REFS) *.aux *.bbl *.bcf *.bib *.blg *.fdb_latexmk *.fls *.log *.out *.pdf *.synctex.gz *.toc
+	@$(RM) -f *.xml
 
 help:
 	@echo 'Targets:'

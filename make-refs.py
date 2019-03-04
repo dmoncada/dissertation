@@ -13,8 +13,7 @@ from os.path import basename  # For stripping the stem from a file.
 
 entry_types = {
     'article': [
-        'author', 'title', 'journaltitle', 'year', 'volume', 'number', 'pages',
-        'doi'
+        'author', 'title', 'journaltitle', 'year', 'volume', 'number', 'pages', 'doi'
     ], 'book': [
         'author', 'title', 'year', 'edition', 'publisher', 'location', 'isbn'
     ], 'conference': [
@@ -29,7 +28,6 @@ entry_types = {
 
 longest = len('journaltitle')
 
-
 def make_templates(entry_types):  # entry_types is a dict. of lists.
     templates = {}
 
@@ -41,7 +39,6 @@ def make_templates(entry_types):  # entry_types is a dict. of lists.
             ' = {{{}}}\n}}\n'
 
     return templates
-
 
 def main(fname):
     try:
@@ -76,7 +73,6 @@ def main(fname):
         return 1
 
     return 0
-
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:

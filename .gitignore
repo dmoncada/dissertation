@@ -1,18 +1,18 @@
-# Ignore everything produced by pdflatex.
+# Output files.
 *.aux
 *.bbl
 *.bcf
 *.bib
 *.blg
+*.fdb_latexmk
+*.fls
 *.log
 *.out
 *.pdf
-*.xml
+*.synctex.gz
 *.toc
+*.xml
 
-# Ignored file types.
-.notags
+# OS-generated files.
 *.swp
-
-# Ignored dirs.
-backup/
+.DS_Store
