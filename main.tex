@@ -66,27 +66,11 @@
 
 \begin{document}
 
-\begin{titlepage}
-  \centering
-  \vspace*{1in}
-  \begin{Large}\bfseries
-    Title of the thesis goes here\par
-  \end{Large}
-  \vspace{1in}
-  \begin{large}
-    Name goes here\par
-  \end{large}
-  \vfill
-  A Thesis submitted for the degree of...\par
-  \vspace{0.5in}
-  Name of the institution goes here\par
-  \vspace{0.5in}
-  Data goes here\par
-\end{titlepage}
+\input{chapters/title} % Add the title page.
 
 % ------------------------------------------------------------------------------
 
-% Front matter
+% Front matter.
 \cleardoublepage%
 \pagenumbering{roman}
 
@@ -97,7 +81,7 @@
 
 % ------------------------------------------------------------------------------
 
-% Main matter
+% Main matter.
 \cleardoublepage%
 \pagenumbering{arabic}
 
@@ -114,6 +98,7 @@
   \markboth{#1}{#1}
   \addcontentsline{toc}{chapter}{#1}
 }
+
 % Add the bibliography.
 \printbibliography[heading=biblio]
 
