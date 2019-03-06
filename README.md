@@ -38,6 +38,8 @@ On *NIX systems, you can leverage the provided `Makefile` for building the docum
 Use `make refs` for running the script that prepares the bibliography references to be used in the document, `make diss` for building the document in PDF format, or `make all` for both.
 On Windows 10, I'd recommend using [Visual Studio Code](https://code.visualstudio.com) along with the [LaTeX Workshop](https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop) extension, which provides many nice features for working with LaTeX files including building the document from the editor.
 
+![](images/vim-skim.gif)
+
 ## References
 
 - https://www.bilalakil.me/getting-started-and-productive-with-latex-basictex-on-os-x-terminal/
